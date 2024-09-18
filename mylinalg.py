@@ -29,7 +29,7 @@ def not_matrix():
     raise Exception('Input must be matrix(constant row length)')
 
 
-def dim2(arr: list) -> list:
+def to2dim(arr: list) -> list:
     if is_empty(arr):
         return [[]]
 
@@ -113,7 +113,7 @@ def transpose(mat: list) -> list:
     if is_empty(mat):
         empty()
 
-    mat = dim2(mat)
+    mat = to2dim(mat)
 
     transposed = []
     row, col = shape(mat)
@@ -227,7 +227,7 @@ def dot(arr1: [int, float, list], arr2: [int, float, list]) -> [float, int]:
     if isinstance(arr1, (int, float)) or isinstance(arr2, (int, float)):
         scaler_mul(arr1, arr2)
 
-    arr1, arr2 = dim2(arr1), dim2(arr2)
+    arr1, arr2 = to2dim(arr1), to2dim(arr2)
 
     if len(arr1[0]) > 1:
         raise Exception("Inputs must be column matrix")
@@ -239,8 +239,8 @@ def dot(arr1: [int, float, list], arr2: [int, float, list]) -> [float, int]:
 
 
 def outer_prod(inp1: [int, float, list], inp2: [int, float, list]) -> list:
-    inp1 = dim2(inp1)
-    inp2 = dim2(inp2)
+    inp1 = to2dim(inp1)
+    inp2 = to2dim(inp2)
 
     if len(inp1[0]) > 1 or len(inp2[0]) > 1:
         raise Exception("Inputs must be column vector")
@@ -269,8 +269,8 @@ def matmul(mat1: [int, float, list], mat2: [int, float, list]) -> list:
 
     res_form = res_type(mat1, mat2)
 
-    mat1 = dim2(mat1)
-    mat2 = dim2(mat2)
+    mat1 = to2dim(mat1)
+    mat2 = to2dim(mat2)
 
     if len(mat1[0]) != len(mat2):
         raise Exception('column of 1st matrix should be same as row of 2nd matrix')
@@ -294,8 +294,8 @@ def matsub(mat1: [int, float, list], mat2: [int, float, list]) -> list:
 
     result_form = res_type(mat1, mat2)
 
-    mat1 = dim2(mat1)
-    mat2 = dim2(mat2)
+    mat1 = to2dim(mat1)
+    mat2 = to2dim(mat2)
 
     if shape(mat1) != shape(mat2):
         raise Exception("both matrix should have same length")
@@ -313,8 +313,8 @@ def matdiv(mat1: [int, float, list], mat2: [int, float, list]) -> list:
 
     result_form = res_type(mat1, mat2)
 
-    mat1 = dim2(mat1)
-    mat2 = dim2(mat2)
+    mat1 = to2dim(mat1)
+    mat2 = to2dim(mat2)
 
     if shape(mat1) != shape(mat2):
         raise Exception("both matrix should have same length")
@@ -327,7 +327,7 @@ def matdiv(mat1: [int, float, list], mat2: [int, float, list]) -> list:
 
 
 def l2_norm(vec):
-    vec = dim2(vec)
+    vec = to2dim(vec)
     if len(vec[0]) > 1:
         raise Exception("Input should be a vector of one dimension")
     return sqrt(sum([i[0] ** 2 for i in vec]))

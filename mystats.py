@@ -105,8 +105,15 @@ def standardize(array, axis=0, with_mean=False, with_std=False):
     return standardized
 
 
-def cov(array):
-    centered_array = standardize(array, axis=0, with_mean=True)
+def cov(inp1, inp2=None):
+    if inp2:
+        if len(inp1) != len(inp2):
+            raise Exception("Both input should have same row")
+        inp1 = [inp1[r] + inp2[r] for r in range(len(inp1))]
+        inp2 = None
+
+
+    centered_array = standardize(inp1, axis=0, with_mean=True)
     numerator = matmul(transpose(centered_array), centered_array)
-    cov_mat = scaler_div(numerator, len(array) - 1)
+    cov_mat = scaler_div(numerator, len(inp1) - 1)
     return cov_mat
