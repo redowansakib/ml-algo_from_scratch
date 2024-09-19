@@ -105,6 +105,7 @@ def standardize(array, axis=0, with_mean=False, with_std=False):
     return standardized
 
 
+# linked to: "PCA_from_scratch"
 def cov(inp1, inp2=None):
     if inp2:
         if len(inp1) != len(inp2):

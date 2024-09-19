@@ -1,3 +1,4 @@
+import random
 from math import sqrt
 from random import normalvariate
 
@@ -254,6 +255,7 @@ def outer_prod(inp1: [int, float, list], inp2: [int, float, list]) -> list:
     return res
 
 
+# Linked to: "PCA_from_scratch"
 def matmul(mat1: [int, float, list], mat2: [int, float, list]) -> list:
     if is_empty(mat1) or is_empty(mat2):
         empty()
@@ -334,7 +336,7 @@ def l2_norm(vec):
 
 
 def random_unit_vector(size):
-    random_vec = [normalvariate(0, 1) for _ in range(size)]
+    random_vec = [random.random() for _ in range(size)]
     unit_vec = l2_norm(random_vec)
     return [i / unit_vec for i in random_vec]
 
@@ -356,7 +358,8 @@ def power_iteration(X, epsilon=1e-10, it=10000):
     raise Exception("Failed to converge for eigenvector")
 
 
-def svd(X, epsilon=1e-10, it=10000):
+# Linked to: "PCA_from_scratch"
+def svd(X: list, epsilon=1e-10, it=10000) -> tuple[list, list, list]:
     m, n = shape(X)
     basis_change = []
 
@@ -367,6 +370,9 @@ def svd(X, epsilon=1e-10, it=10000):
         u = matdiv(us, s)
         X = matsub(X, scaler_mul(s, outer_prod(u, v)))
         basis_change.append((u, s, v))
+
+    basis_change.sort(key=lambda x:x[1], reverse=True)
+
     UT, S, Vh = [list(x) for x in zip(*basis_change)]
 
     return transpose(UT), S, Vh
