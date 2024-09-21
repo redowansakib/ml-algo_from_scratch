@@ -1,4 +1,4 @@
-from mystats import *
+from modules.mystats import *
 
 
 def myPCA(data, n_components=1):
@@ -21,7 +21,7 @@ def my_simple_linear_regression(x: [list], y: [list]) -> tuple[float, float]:
         raise Exception("x and y both should have 1 dimension")
 
     cov_mat = cov(x, y)
-    coef = cov_mat[0][0] / cov_mat[0][1]
+    coef = cov_mat[0][1] / cov_mat[0][0]
     intercept = mean(y) - coef * mean(x)
 
     return coef, intercept
