@@ -1,5 +1,4 @@
 import random
-from math import sqrt
 
 
 def is_empty(arr: list) -> bool:
@@ -25,8 +24,40 @@ def is_matrix(arr: list) -> bool:
     return False
 
 
+def is_square(m):
+    for i in range(len(m)):
+        if len(m) != len(m[i]):
+            return False
+    return True
+
+
+def is_symmetric(m):
+
+    if is_square(m):
+        pass
+
+    for i in range(len(m)):
+        for j in range(i):
+            if m[i][j] != m[j][i]:
+                raise Exception('not a symmetric matrix')
+
+def is_left_lower_triangular(m):
+
+    if is_square(m):
+        pass
+
+    for i in range(len(m)):
+        for j in range(i+1, len(m)):
+            if m[i][j] != 0:
+                raise Exception('not left lower triangular')
+
+    return True
+
 def not_matrix():
     raise Exception('Input must be matrix(constant row length)')
+
+def not_square():
+    raise Exception('not a square matrix')
 
 
 def to2dim(arr: list) -> list:
@@ -83,7 +114,7 @@ def numify(inp):
     return inp[0][0]
 
 
-def flatify(inp):
+def flatten(inp):
     if isinstance(inp, (int, float)):
         return [inp]
     if isinstance(inp[0], (int, float)):
@@ -102,11 +133,22 @@ def matify(inp):
 def result(inp, res_type):
     res_dic = {
         'num': numify,
-        'flat': flatify,
+        'flat': flatten,
         'mat': matify
     }
 
     return res_dic[res_type](inp)
+
+
+def diagonalize(arr):
+    if dim(arr) == 1:
+        mat = [[0 for _ in range(len(arr))] for _ in range(len(arr))]
+
+        for i in range(len(arr)):
+            mat[i][i] = arr[i]
+
+        return mat
+    raise Exception('arr must be have only one dimension')
 
 
 def transpose(mat: list) -> list:
@@ -308,6 +350,25 @@ def matsub(mat1: [int, float, list], mat2: [int, float, list]) -> list:
     return result(res, result_form)
 
 
+def matadd(mat1: [int, float, list], mat2: [int, float, list]) -> list:
+    if isinstance(mat1, (int, float)) or isinstance(mat2, (int, float)):
+        return scaler_add(mat1, mat2)
+
+    result_form = res_type(mat1, mat2)
+
+    mat1 = to2dim(mat1)
+    mat2 = to2dim(mat2)
+
+    if shape(mat1) != shape(mat2):
+        raise Exception("both matrix should have same length")
+
+    res = [[0 for _ in range(len(mat1[0]))] for _ in range(len(mat1))]
+    for r in range(len(res)):
+        for c in range(len(res[0])):
+            res[r][c] = mat1[r][c] + mat2[r][c]
+    return result(res, result_form)
+
+
 def matdiv(mat1: [int, float, list], mat2: [int, float, list]) -> list:
     if isinstance(mat1, (int, float)) or isinstance(mat2, (int, float)):
         return scaler_div(mat1, mat2)
@@ -331,7 +392,7 @@ def l2_norm(vec):
     vec = to2dim(vec)
     if len(vec[0]) > 1:
         raise Exception("Input should be a vector of one dimension")
-    return sqrt(sum([i[0] ** 2 for i in vec]))
+    return (sum([i[0] ** 2 for i in vec])) ** .5
 
 
 def random_unit_vector(size):
@@ -377,6 +438,124 @@ def svd(X: list, epsilon=1e-10, it=10000) -> tuple[list, list, list]:
     return transpose(UT), S, Vh
 
 
-def eig(mat: list) -> tuple[list, list]:
-    U, S, V = svd(mat)
+def eig(m: list) -> tuple[list, list]:
+
+    if not is_matrix():
+        not_matrix()
+
+    U, S, V = svd(m)
     return S, U
+
+
+def cholesky_decomposition(m):
+
+    if is_symmetric(m):
+        pass
+
+    L = [[0 for _ in range(len(m))] for _ in range(len(m))]
+    for col in range(len(m)):
+        for row in range(col, len(m)):
+            val = m[row][col]
+            for t in range(0, col):
+                val -= L[row][col - t - 1]*L[col][col - t - 1]
+            if row == col:
+                L[row][col] = val ** 0.5
+            else:
+                L[row][col] = val/L[col][col]
+
+    return L
+
+
+def lower_left_tri_inv(m):
+
+    if is_left_lower_triangular(m):
+        pass
+
+    inv = [[1 if i == j else 0 for i in range(len(m))] for j in range(len(m))]
+
+    for i in range(len(m)):
+        for j in range(i+1):
+            inv[i][j] = inv[i][j]/m[i][i]
+
+        for k in range(i+1):
+            for l in range(i+1, len(m)):
+                inv[l][k] -= inv[i][k] * m[l][i]
+
+    return inv
+
+
+def cholesky_inverse(mat):
+
+    if not is_matrix(mat):
+        not_matrix()
+
+    if not is_square(mat):
+        not_square()
+
+    L = cholesky_decomposition(mat)
+    L_inv = lower_left_tri_inv(L)
+    U_inv = transpose(L_inv)
+    inv = matmul(U_inv, L_inv)
+
+    return inv
+
+
+def diagonal_inverse(mat):
+
+    if not is_matrix(mat):
+        raise Exception('Provide a diagonal Matrix')
+
+    for i in range(len(mat)):
+        for j in range(len(mat)):
+            if i != j and mat[i][j] != 0:
+                raise Exception('Matrix must be diagonal')
+
+    for i in range(len(mat)):
+        mat[i][i] = 1/mat[i][i]
+
+    return mat
+
+
+def svd_inverse(mat):
+
+    if not is_matrix():
+        not_matrix()
+
+    if not is_square():
+        not_square()
+
+    U, S, Vh = svd(mat)
+    inv_S = diagonal_inverse(diagonalize(S))
+
+    return matmul(matmul(transpose(Vh), inv_S),transpose(U))
+
+
+def matrix_rank(mat, tol=1e-7):
+    if not is_matrix(mat):
+        not_matrix()
+
+    if is_empty(mat):
+        empty()
+
+    U, S, Vh = svd(mat)
+
+    rank = 0
+
+    for i in range(len(S)):
+        if S[i] > tol:
+            rank += 1
+
+    return rank
+
+
+def svdvals(m):
+
+    U, S, Vh = svd(m)
+    return S
+
+def identity(n):
+    return [[1 if i == j else 0 for i in range(n)] for j in range(n)]
+
+
+
+

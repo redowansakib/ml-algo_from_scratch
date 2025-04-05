@@ -123,3 +123,13 @@ def cov(inp1, inp2=None):
     numerator = matmul(transpose(centered_array), centered_array)
     cov_mat = scaler_div(numerator, len(inp1) - 1)
     return cov_mat
+
+
+def mysum(array,axis=0):
+
+    array = to2dim(array)
+
+    if axis == 0:
+        array = transpose(array)
+
+    return [sum(x) for x in array]
